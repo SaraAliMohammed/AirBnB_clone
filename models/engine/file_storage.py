@@ -1,8 +1,5 @@
 #!/usr/bin/python3
 """Defines A FileStorage Class
-import json
-from models.base_modele import BaseModel
-from models.user import User
 from models.place import Place
 from models.amenity import Amenity
 from models.city import City
@@ -11,7 +8,7 @@ from models.state import State
 """
 import json
 from models.base_model import BaseModel
-
+from models.user import User
 
 class FileStorage():
     """
@@ -25,7 +22,7 @@ class FileStorage():
     """
     __file_path = "file.json"
     __objects = {}
-    classes_dict = {"BaseModel": BaseModel}
+    classes_dict = {"BaseModel": BaseModel, "User": User}
 
     def all(self):
         """Returns the dictionary __objects"""
