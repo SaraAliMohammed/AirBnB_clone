@@ -4,6 +4,7 @@ import cmd
 from models.base_model import BaseModel
 from models import storage
 
+
 class HBNBCommand(cmd.Cmd):
     """
     Contains the entry point of the command interpreter
@@ -56,19 +57,22 @@ class HBNBCommand(cmd.Cmd):
             print(new_instance.id)
 
     def do_show(self, line):
-        """Prints the string representation of an 
+        """Prints the string representation of an
         instance based on the class name and id"""
-        if not validate_line(line, self.__available_classes, check_id = True):
+        if not validate_line(line, self.__available_classes, check_id=True):
             return
         else:
+            all_objects = storage.all()
+            args = line.split()
             print(all_objects["{}.{}".format(args[0], args[1])])
 
     def do_destroy(self, line):
         """Deletes an instance based on the class name and id"""
-        if not validate_line(line, self.__available_classes, check_id = True):
+        if not validate_line(line, self.__available_classes, check_id=True):
             return
         else:
             all_objects = storage.all()
+            args = line.split()
             del all_objects["{}.{}".format(args[0], args[1])]
             storage.save()
 
@@ -77,15 +81,13 @@ class HBNBCommand(cmd.Cmd):
         all instances based or not on the class name"""
         all_objects = storage.all()
         if not line:
-            for v in all_objects.values():
-                print(str(v))
+            print([str(v) for v in all_objects.values()])
         elif line.split()[0] not in self.__available_classes:
             print("** class doesn't exist **")
         else:
             class_name = line.split()[0]
-            for v in all_objects.values():
-                if v.__class__.__name__ == class_name:
-                    print(str(v))
+            print([str(v) for v in all_objects.values()
+                   if v.__class__.__name__ == class_name])
 
     def do_update(self, line):
         """Updates an instance based on the class name
@@ -119,7 +121,8 @@ class HBNBCommand(cmd.Cmd):
                 setattr(all_objects[key], attr, value)
                 storage.save()
 
-def validate_line(line, available_classes, check_id = False):
+
+def validate_line(line, available_classes, check_id=False):
     """Validates the arguments in the line"""
     if not line:
         print("** class name missing **")
@@ -137,6 +140,7 @@ def validate_line(line, available_classes, check_id = False):
         print("** no instance found **")
         return
     return True
+
 
 def validate_attributes(line):
     """Validates the attributes in the line"""
