@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """Defines the console module"""
 import cmd
+import re
 from models.base_model import BaseModel
 from models import storage
 from models.user import User
@@ -46,6 +47,30 @@ class HBNBCommand(cmd.Cmd):
     def emptyline(self):
         """Called when an empty line is entered"""
         pass
+
+    def default(self, line):
+        """
+        Default behavior for the cmd module when
+        input is invalid
+        """
+        cmd_commands = {
+            "all": self.do_all,
+            "show": self.do_show,
+            "destroy": self.do_destroy,
+            "count": self.do_count,
+            "update": self.do_update
+        }
+        search_text = re.search(r"\.", line)
+        if search_text is not None:
+            args = [line[:search_text.span()[0]], line[search_text.span()[1]:]]
+            search_text = re.search(r"\((.*?)\)", args[1])
+            if search_text is not None:
+                command = [args[1][:search_text.span()[0]], search_text.group()[1:-1]]
+                if command[0] in cmd_commands.keys():
+                    full_command_call = "{} {}".format(args[0], command[1])
+                    return cmd_commands[command[0]](full_command_call)
+        print("*** Unknown syntax: {}".format(arg))
+        return False
 
     def do_create(self, line):
         """Creates a new instance of BaseModel,
@@ -126,6 +151,20 @@ class HBNBCommand(cmd.Cmd):
                         return
                 setattr(all_objects[key], attr, value)
                 storage.save()
+
+    def do_count(self, line):
+        """Retrieves the number of instances of a class"""
+        if not validate_line(line, self.__available_classes):
+            return
+        else:
+            all_objects = storage.all()
+            args = line.split()
+            class_name = args[0]
+            count = 0
+            for obj in all_objects.values():
+                if class_name == obj.__class__.__name__:
+                    count += 1
+            print(count)
 
 
 def validate_line(line, available_classes, check_id=False):
