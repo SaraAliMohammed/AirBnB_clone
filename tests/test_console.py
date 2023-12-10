@@ -20,6 +20,7 @@ from console import (
     parse_line
 )
 
+
 class TestHBNBCommand(unittest.TestCase):
 
     def setUp(self):
@@ -38,8 +39,10 @@ class TestHBNBCommand(unittest.TestCase):
 
     def test_validate_line(self):
         """Test for validate line"""
-        available_classes = {"BaseModel", "User", "State", "City", "Place", "Amenity", "Review"}
-        self.assertTrue(validate_line("BaseModel.123", available_classes, check_id=True))
+        available_classes = {"BaseModel", "User", "State",
+                             "City", "Place", "Amenity", "Review"}
+        self.assertTrue(validate_line("BaseModel.123", available_classes,
+                        check_id=True))
         self.assertFalse(validate_line("", available_classes, check_id=True))
 
     def test_validate_attributes(self):
@@ -49,14 +52,15 @@ class TestHBNBCommand(unittest.TestCase):
 
     def test_parse_line(self):
         """Test for oarse line method"""
-        self.assertEqual(parse_line("example {text} [here]"), ['example', 'text', 'here'])
-
+        self.assertEqual(parse_line("example {text} [here]"),
+                         ['example', 'text', 'here'])
 
     def test_do_create(self):
         """Test create"""
         with patch('builtins.print') as mock_print:
             self.cmd.do_create("BaseModel")
             self.assertTrue(mock_print.called)
+
     @patch('models.storage')
     def test_do_show(self, mock_storage):
         """Test show"""
@@ -65,9 +69,9 @@ class TestHBNBCommand(unittest.TestCase):
         mock_storage.all.return_value = {'BaseModel.test_id': test_instance}
         with patch('sys.stdout', new=StringIO()) as fake_output:
             self.cmd.do_show("BaseModel test_id")
-            self.assertEqual(fake_output.getvalue().strip(), str(test_instance))
+            self.assertEqual(fake_output.getvalue().strip(),
+                             str(test_instance))
 
 
 if __name__ == '__main__':
     unittest.main()
-
