@@ -2,6 +2,7 @@
 """Defines the console module"""
 import cmd
 import re
+from shlex import split
 from models.base_model import BaseModel
 from models import storage
 from models.user import User
@@ -65,7 +66,8 @@ class HBNBCommand(cmd.Cmd):
             args = [line[:search_text.span()[0]], line[search_text.span()[1]:]]
             search_text = re.search(r"\((.*?)\)", args[1])
             if search_text is not None:
-                command = [args[1][:search_text.span()[0]], search_text.group()[1:-1]]
+                command = [args[1][:search_text.span()[0]],
+                           search_text.group()[1:-1]]
                 if command[0] in cmd_commands.keys():
                     full_command_call = "{} {}".format(args[0], command[1])
                     return cmd_commands[command[0]](full_command_call)
@@ -129,28 +131,39 @@ class HBNBCommand(cmd.Cmd):
             return
         else:
             all_objects = storage.all()
-            args = line.split()
-            attr = args[2]
-            value = args[3]
+            args = parse_line(line)
             key = "{}.{}".format(args[0], args[1])
+            attr = args[2]
             not_allowed = ("id", "created_at", "updated_at")
-            if attr not in not_allowed:
-                try:
-                    if value.isdigit():
-                        value = int(value)
-                    elif float(value):
-                        value = float(value)
-                except ValueError:
-                    pass
-                class_dict = type(all_objects[key]).__dict__
-                if attr in class_dict.keys():
+            if len(args) == 4:
+                value = args[3]
+                if attr not in not_allowed:
                     try:
-                        value = type(class_dict[attr])(value)
-                    except Exception:
-                        print("Entered wrong value type")
-                        return
-                setattr(all_objects[key], attr, value)
-                storage.save()
+                        if value.isdigit():
+                            value = int(value)
+                        elif float(value):
+                            value = float(value)
+                    except ValueError:
+                        pass
+                    class_dict = type(all_objects[key]).__dict__
+                    if attr in class_dict.keys():
+                        try:
+                            value = type(class_dict[attr])(value)
+                        except Exception:
+                            print("Entered wrong value type")
+                            return
+                    setattr(all_objects[key], attr, value)
+            elif type(eval(attr)) == dict:
+                obj = all_objects[key]
+                for k, v in eval(attr).items():
+                    if (k in obj.__class__.__dict__.keys() and
+                            type(obj.__class__.__dict__[k]) in
+                            {str, int, float}):
+                        value_type = type(obj.__class__.__dict__[k])
+                        obj.__dict__[k] = value_type(v)
+                    else:
+                        obj.__dict__[k] = v
+            storage.save()
 
     def do_count(self, line):
         """Retrieves the number of instances of a class"""
@@ -197,6 +210,25 @@ def validate_attributes(line):
         print("** value missing **")
         return False
     return True
+
+
+def parse_line(line):
+    """Parses the line of {} and []"""
+    curly = re.search(r"\{(.*?)\}", line)
+    brackets = re.search(r"\[(.*?)\]", line)
+    if curly is None:
+        if brackets is None:
+            return [i.strip(",") for i in split(line)]
+        else:
+            lexer = split(line[:brackets.span()[0]])
+            args = [i.strip(",") for i in lexer]
+            args.append(brackets.group())
+            return args
+    else:
+        lexer = split(line[:curly.span()[0]])
+        args = [i.strip(",") for i in lexer]
+        args.append(curly.group())
+        return args
 
 
 if __name__ == '__main__':
