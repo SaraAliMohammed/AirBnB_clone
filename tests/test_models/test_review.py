@@ -9,9 +9,10 @@ from models.engine.file_storage import FileStorage
 
 
 class TestReview(unittest.TestCase):
-    """Test  for the Review class."""
+    """Test for the Review class."""
 
     def setUp(self):
+        """Define Setup"""
         self.review1 = Review()
         self.review2 = Review("welcome", "hi", "think")
         self.review3 = Review(**self.review1.to_dict())
@@ -39,8 +40,9 @@ class TestReview(unittest.TestCase):
 
     def test_str_method(self):
         """Test the str method"""
-        string = f"[{type(self.review1).__name__}] ({self.review1.id}) {self.review1.__dict__}"
-        self.assertEqual(self.review1.__str__(), string)
+        rev = self.review1
+        r = f"[{type(rev).__name__}] ({rev.id}) {rev.__dict__}"
+        self.assertEqual(rev.__str__(), r)
 
     def test_save_method(self):
         """Test the save method"""

@@ -188,6 +188,8 @@ def validate_line(line, available_classes, check_id=False):
     args = parse_line(line)
     if check_id:
         all_objects = storage.all()
+    if len(args) == 1:
+        return False
     if args[0] not in available_classes:
         print("** class doesn't exist **")
         return False
@@ -196,14 +198,16 @@ def validate_line(line, available_classes, check_id=False):
         return False
     elif check_id and "{}.{}".format(args[0], args[1]) not in all_objects:
         print("** no instance found **")
-        return
+        return False
     return True
 
 
 def validate_attributes(line):
     """Validates the attributes in the line"""
     args = line.split()
-    if len(args) == 2:
+    if len(args) < 2:
+        return False
+    elif len(args) == 2:
         print("** attribute name missing **")
         return False
     elif len(args) == 3:

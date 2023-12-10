@@ -40,7 +40,8 @@ class TestState(unittest.TestCase):
 
     def test_str_method(self):
         """Test the str method"""
-        text = f"[{type(self.state1).__name__}] ({self.state1.id}) {self.state1.__dict__}"
+        st = self.state1
+        text = f"[{type(st).__name__}] ({st.id}) {st.__dict__}"
         self.assertEqual(self.state1.__str__(), text)
 
     def test_save_method(self):
