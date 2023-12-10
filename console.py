@@ -185,7 +185,7 @@ def validate_line(line, available_classes, check_id=False):
     if not line:
         print("** class name missing **")
         return
-    args = line.split()
+    args = parse_line(line)
     if check_id:
         all_objects = storage.all()
     if args[0] not in available_classes:
